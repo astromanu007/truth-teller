@@ -7,6 +7,7 @@ PassiveAggressiveClassifier and TF-IDF vectorizer.
 Run:
     python app.py
 """
+print("🔥 app.py LOADED FROM:", __file__)
 
 import os
 import re
@@ -33,6 +34,8 @@ STOP_WORDS = set(stopwords.words("english"))
 model = joblib.load(MODEL_PATH)
 vectorizer = joblib.load(VECTORIZER_PATH)
 
+print("✅ MODEL LOADED:", model is not None)
+print("✅ VECTORIZER LOADED:", vectorizer is not None)
 
 
 # ---------------- LOAD MODEL ----------------
