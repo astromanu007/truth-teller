@@ -68,18 +68,10 @@ def clean_text(text):
 
 # ---------------- PREDICTION LOGIC ----------------
 def predict_news(text):
-    global model, vectorizer
-
-    # Ensure model is loaded
-    if model is None or vectorizer is None:
-        load_model()
-
     cleaned_text = clean_text(text)
 
     if not cleaned_text:
-        return {
-            "error": "Text is empty after preprocessing"
-        }
+        return {"error": "Empty text after preprocessing"}
 
     text_tfidf = vectorizer.transform([cleaned_text])
     prediction = model.predict(text_tfidf)[0]
