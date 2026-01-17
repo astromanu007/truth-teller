@@ -1,13 +1,9 @@
 """
-Fake News Detection - Flask API
-===============================
-Classifies news articles as FAKE or REAL using a trained
-PassiveAggressiveClassifier and TF-IDF vectorizer.
-
-Run:
-    python app.py
+Truth Teller – Fake News Detection Backend
+------------------------------------------
+Flask API that classifies news text as FAKE or REAL
+using a trained PassiveAggressiveClassifier and TF-IDF vectorizer.
 """
-print("🔥 app.py LOADED FROM:", __file__)
 
 import os
 import re
@@ -15,21 +11,35 @@ import string
 import joblib
 import numpy as np
 import nltk
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-# Download stopwords
+# -------------------------------------------------
+# NLTK SETUP
+# -------------------------------------------------
 nltk.download("stopwords", quiet=True)
 from nltk.corpus import stopwords
 
-# ---------------- APP SETUP ----------------
+STOP_WORDS = set(stopwords.words("english"))
+
+# -------------------------------------------------
+# PATH SETUP (IMPORTANT FOR RAILWAY)
+# -------------------------------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+MODEL_PATH = os.path.join(BASE_DIR, "model", "fake_news_model.pkl")
+VECTORIZER_PATH = os.path.join(BASE_DIR, "model", "tfidf_vectorizer.pkl")
+
+# -------------------------------------------------
+# APP INIT
+# -------------------------------------------------
 app = Flask(__name__)
 CORS(app)
 
-MODEL_PATH = "model/fake_news_model.pkl"
-VECTORIZER_PATH = "model/tfidf_vectorizer.pkl"
-
-STOP_WORDS = set(stopwords.words("english"))
+# -------------------------------------------------
+# LOAD MODEL & VECTORIZER (EAGER LOADING)
+# -------------------------------------------------
+print("🔥 app.py loaded from:", __file__)
 
 model = joblib.load(MODEL_PATH)
 vectorizer = joblib.load(VECTORIZER_PATH)
@@ -37,20 +47,10 @@ vectorizer = joblib.load(VECTORIZER_PATH)
 print("✅ MODEL LOADED:", model is not None)
 print("✅ VECTORIZER LOADED:", vectorizer is not None)
 
-
-# ---------------- LOAD MODEL ----------------
-def load_model():
-    global model, vectorizer
-
-    if model is None:
-        model = joblib.load(MODEL_PATH)
-
-    if vectorizer is None:
-        vectorizer = joblib.load(VECTORIZER_PATH)
-
-
-# ---------------- TEXT CLEANING ----------------
-def clean_text(text):
+# -------------------------------------------------
+# TEXT CLEANING
+# -------------------------------------------------
+def clean_text(text: str) -> str:
     if not isinstance(text, str):
         return ""
 
@@ -68,18 +68,20 @@ def clean_text(text):
 
     return text
 
-
-# ---------------- PREDICTION LOGIC ----------------
-def predict_news(text):
+# -------------------------------------------------
+# PREDICTION LOGIC
+# -------------------------------------------------
+def predict_news(text: str) -> dict:
     cleaned_text = clean_text(text)
 
     if not cleaned_text:
-        return {"error": "Empty text after preprocessing"}
+        return {"error": "Text is empty after preprocessing"}
 
     text_tfidf = vectorizer.transform([cleaned_text])
-    prediction = model.predict(text_tfidf)[0]
 
+    prediction = model.predict(text_tfidf)[0]
     decision = model.decision_function(text_tfidf)[0]
+
     confidence = 1 / (1 + np.exp(-abs(decision)))
     confidence = round(confidence * 100, 2)
 
@@ -88,42 +90,46 @@ def predict_news(text):
         "confidence": confidence
     }
 
-
-# ---------------- ROUTES ----------------
-@app.route("/")
+# -------------------------------------------------
+# ROUTES
+# -------------------------------------------------
+@app.route("/", methods=["GET"])
 def home():
-    return render_template("index.html")
-
+    return jsonify({
+        "message": "Truth Teller Backend API is running"
+    })
 
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        # Accept JSON or HTML form
         data = request.get_json(silent=True)
 
-        if data and "text" in data:
-            text = data["text"]
-        else:
-            text = request.form.get("text")
+        if not data or "text" not in data:
+            return jsonify({
+                "success": False,
+                "error": "Missing 'text' field in request body"
+            }), 400
+
+        text = data["text"]
 
         if not text or len(text.strip()) < 10:
             return jsonify({
                 "success": False,
-                "error": "Please enter a valid news article (min 10 characters)."
+                "error": "Please enter at least 10 characters"
             }), 400
 
-        prediction, confidence = predict_news(text)
+        result = predict_news(text)
 
-        if prediction is None:
+        if "error" in result:
             return jsonify({
                 "success": False,
-                "error": "Unable to process text."
+                "error": result["error"]
             }), 400
 
         return jsonify({
             "success": True,
-            "prediction": prediction,
-            "confidence": confidence
+            "prediction": result["prediction"],
+            "confidence": result["confidence"]
         })
 
     except Exception as e:
@@ -132,8 +138,7 @@ def predict():
             "error": str(e)
         }), 500
 
-
-@app.route("/health")
+@app.route("/health", methods=["GET"])
 def health():
     return jsonify({
         "status": "healthy",
@@ -141,20 +146,9 @@ def health():
         "vectorizer_loaded": vectorizer is not None
     })
 
-
-# ---------------- MAIN ----------------
+# -------------------------------------------------
+# LOCAL ENTRY POINT (NOT USED BY RAILWAY)
+# -------------------------------------------------
 if __name__ == "__main__":
-    print("\n" + "=" * 60)
-    print(" FAKE NEWS DETECTION API")
-    print("=" * 60)
-
-    try:
-        load_model()
-    except Exception as e:
-        print(f"❌ {e}")
-        exit(1)
-
-    print("\n🚀 Server running at: http://localhost:5000")
-    print("📡 Prediction API: POST /predict\n")
-
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
