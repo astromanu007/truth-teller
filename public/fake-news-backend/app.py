@@ -30,8 +30,9 @@ VECTORIZER_PATH = "model/tfidf_vectorizer.pkl"
 
 STOP_WORDS = set(stopwords.words("english"))
 
-model = None
-vectorizer = None
+model = joblib.load(MODEL_PATH)
+vectorizer = joblib.load(VECTORIZER_PATH)
+
 
 
 # ---------------- LOAD MODEL ----------------
