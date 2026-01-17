@@ -38,16 +38,11 @@ vectorizer = None
 def load_model():
     global model, vectorizer
 
-    if not os.path.exists(MODEL_PATH):
-        raise FileNotFoundError("Model not found. Run train_model.py first.")
+    if model is None:
+        model = joblib.load(MODEL_PATH)
 
-    if not os.path.exists(VECTORIZER_PATH):
-        raise FileNotFoundError("Vectorizer not found. Run train_model.py first.")
-
-    model = joblib.load(MODEL_PATH)
-    vectorizer = joblib.load(VECTORIZER_PATH)
-
-    print("✓ Model and vectorizer loaded successfully")
+    if vectorizer is None:
+        vectorizer = joblib.load(VECTORIZER_PATH)
 
 
 # ---------------- TEXT CLEANING ----------------
@@ -72,21 +67,30 @@ def clean_text(text):
 
 # ---------------- PREDICTION LOGIC ----------------
 def predict_news(text):
-    cleaned = clean_text(text)
+    global model, vectorizer
 
-    if not cleaned:
-        return None, None
+    # Ensure model is loaded
+    if model is None or vectorizer is None:
+        load_model()
 
-    vector = vectorizer.transform([cleaned])
-    prediction = model.predict(vector)[0]
+    cleaned_text = clean_text(text)
 
-    decision = model.decision_function(vector)[0]
+    if not cleaned_text:
+        return {
+            "error": "Text is empty after preprocessing"
+        }
+
+    text_tfidf = vectorizer.transform([cleaned_text])
+    prediction = model.predict(text_tfidf)[0]
+
+    decision = model.decision_function(text_tfidf)[0]
     confidence = 1 / (1 + np.exp(-abs(decision)))
     confidence = round(confidence * 100, 2)
 
-    label = "REAL" if prediction == 1 else "FAKE"
-
-    return label, confidence
+    return {
+        "prediction": prediction,
+        "confidence": confidence
+    }
 
 
 # ---------------- ROUTES ----------------
