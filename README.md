@@ -166,22 +166,11 @@ cd truth-teller
 
 2. **Start Backend**
 ```bash
-cd backend
+cd truth-teller\public\fake-news-backend
 pip install -r requirements.txt
 python app.py
 
 ```
-
-
-3. **Start Frontend** (In a new terminal)
-```bash
-cd frontend
-npm install
-npm run dev
-
-```
-
-
 
 ---
 
