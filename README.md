@@ -46,7 +46,7 @@
 
 ## 📖 About The Project
 
-![App Screenshot](https://via.placeholder.com/800x400.png?text=Place+Your+App+Screenshot+Here)
+![App Screenshot](https://github.com/astromanu007/truth-teller/blob/main/UI.png)
 *(Replace the link above with a screenshot or GIF of your UI)*
 
 Fake news spreads rapidly across digital platforms, leading to public misinformation and social polarization. Manual fact-checking is unscalable against the velocity of modern media.
