@@ -82,3 +82,88 @@ graph LR
     style UI fill:#61DAFB,stroke:#333,color:black
     style API fill:#000,stroke:#fff,color:white
     style MODEL fill:#F7931E,stroke:#333,color:white
+
+
+## 📊 Performance Analytics
+
+The model was trained and tested on a dataset of **~20,000 news articles** (ISOT Fake News Dataset).
+
+### 🏆 Test Set Results (8,978 Samples)
+
+| Metric | Score | Definition |
+| --- | --- | --- |
+| **Accuracy** | **99.89%** | Overall correctness of the model. |
+| **Precision** | **1.00** | Accuracy of positive predictions. |
+| **Recall** | **1.00** | Ability to find all positive instances. |
+| **F1-Score** | **1.00** | Harmonic mean of Precision and Recall. |
+
+### 📉 Confusion Matrix
+
+*A visual representation of the model's reliability.*
+
+|  | **Predicted REAL** | **Predicted FAKE** |
+| --- | --- | --- |
+| **Actual REAL** | **4,687** ✅ | 8 ❌ |
+| **Actual FAKE** | 2 ❌ | **4,281** ✅ |
+
+> **Analysis:** The model only misclassified 10 articles out of nearly 9,000, demonstrating exceptional capability in distinguishing linguistic patterns between legitimate journalism and fabricated stories.
+
+---
+
+## 🔌 API Reference
+
+Integrate Truth Teller into your own applications.
+
+#### Base URL: `https://truth-teller-backend-production.up.railway.app`
+
+### `POST /predict`
+
+Classifies a text string.
+
+**Request Body:**
+
+```json
+{
+  "text": "Breaking: Aliens have landed in Times Square and are demanding pizza."
+}
+
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "prediction": "FAKE",
+  "confidence": 99.2,
+  "processed_timestamp": "2023-10-27T10:00:00Z"
+}
+
+```
+
+---
+
+## 🏎️ Local Installation
+
+Want to run this locally? Follow these steps.
+
+1. **Clone the Repo**
+```bash
+git clone [https://github.com/astromanu007/truth-teller.git](https://github.com/astromanu007/truth-teller.git)
+cd truth-teller
+
+
+## 👤 Author
+
+**Manish Dhatrak** *National Innovator | AI & ML Researcher*
+
+I am passionate about leveraging Artificial Intelligence to solve complex societal problems.
+
+
+<div align="center">
+<sub>Built with precision. Deployed with passion. © 2025 Truth Teller.</sub>
+</div>
+
+
+
+
