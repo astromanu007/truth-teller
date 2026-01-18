@@ -1,12 +1,4 @@
-It looks like the GitHub renderer (or the previewer you are using) is strictly parsing the text and running into a "collision" where it thinks the next Markdown header (`##`) is part of the Mermaid code. This usually happens if there isn't a clean newline break before the closing backticks.
 
-I have fixed the syntax below by using **safe quoting** for the node labels and **CSS classes** instead of inline styles, which is much more robust for GitHub's renderer.
-
-You can replace your entire `README.md` with this corrected version.
-
----
-
-```markdown
 <div align="center">
 
 # 📰 Truth Teller
