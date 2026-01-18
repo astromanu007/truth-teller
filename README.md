@@ -160,10 +160,7 @@ cd truth-teller
 I am passionate about leveraging Artificial Intelligence to solve complex societal problems.
 
 
-<div align="center">
-<sub>Built with precision. Deployed with passion. © 2025 Truth Teller.</sub>
-</div>
-
+<div align="center"> <sub>Built with precision. Deployed with passion. © 2025 Truth Teller.</sub> </div>
 
 
 
