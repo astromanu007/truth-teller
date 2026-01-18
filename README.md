@@ -1,3 +1,12 @@
+It looks like the GitHub renderer (or the previewer you are using) is strictly parsing the text and running into a "collision" where it thinks the next Markdown header (`##`) is part of the Mermaid code. This usually happens if there isn't a clean newline break before the closing backticks.
+
+I have fixed the syntax below by using **safe quoting** for the node labels and **CSS classes** instead of inline styles, which is much more robust for GitHub's renderer.
+
+You can replace your entire `README.md` with this corrected version.
+
+---
+
+```markdown
 <div align="center">
 
 # 📰 Truth Teller
@@ -66,23 +75,31 @@ Built with industry-standard tools for reliability and scale.
 The application follows a **Decoupled Microservices Pattern**. The React frontend communicates with the Python ML backend via JSON over HTTPS.
 
 ```mermaid
-graph LR
-    User[👤 End User] -->|1. Input News| UI[⚛️ React UI]
-    UI -->|2. POST /predict| API[🐍 Flask API]
+graph TD
+    User["👤 End User"] -->|1. Input News| UI["⚛️ React UI"]
+    UI -->|2. POST /predict| API["🐍 Flask API"]
     
-    subgraph "Backend Processing"
-    API -->|3. Clean Text| NLP[🧹 Preprocessing]
-    NLP -->|4. Vectorize| TFIDF[🧮 TF-IDF]
-    TFIDF -->|5. Predict| MODEL[🧠 PassiveAggressive]
+    subgraph Backend ["Backend Processing"]
+        API -->|3. Clean Text| NLP["🧹 Preprocessing"]
+        NLP -->|4. Vectorize| TFIDF["🧮 TF-IDF"]
+        TFIDF -->|5. Predict| MODEL["🧠 PassiveAggressive"]
     end
     
     MODEL -->|6. JSON Response| UI
     UI -->|7. Render Result| User
     
-    style UI fill:#61DAFB,stroke:#333,color:black
-    style API fill:#000,stroke:#fff,color:white
-    style MODEL fill:#F7931E,stroke:#333,color:white
+    %% Styles
+    classDef react fill:#61DAFB,stroke:#333,stroke-width:2px,color:black;
+    classDef flask fill:#000,stroke:#fff,stroke-width:2px,color:white;
+    classDef ml fill:#F7931E,stroke:#333,stroke-width:2px,color:white;
+    
+    class UI react;
+    class API flask;
+    class MODEL ml;
 
+```
+
+---
 
 ## 📊 Performance Analytics
 
@@ -152,6 +169,29 @@ Want to run this locally? Follow these steps.
 git clone [https://github.com/astromanu007/truth-teller.git](https://github.com/astromanu007/truth-teller.git)
 cd truth-teller
 
+```
+
+
+2. **Start Backend**
+```bash
+cd backend
+pip install -r requirements.txt
+python app.py
+
+```
+
+
+3. **Start Frontend** (In a new terminal)
+```bash
+cd frontend
+npm install
+npm run dev
+
+```
+
+
+
+---
 
 ## 👤 Author
 
@@ -159,8 +199,12 @@ cd truth-teller
 
 I am passionate about leveraging Artificial Intelligence to solve complex societal problems.
 
+---
 
-<div align="center"> <sub>Built with precision. Deployed with passion. © 2025 Truth Teller.</sub> </div>
+<div align="center">
+<sub>Built with precision. Deployed with passion. © 2025 Truth Teller.</sub>
+</div>
 
+```
 
-
+```
