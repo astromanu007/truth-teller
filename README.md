@@ -176,7 +176,7 @@ python app.py
 
 ## 👤 Author
 
-**Manish Dhatrak** *National Innovator | AI & ML Researcher*
+**Mr. Manish Dhatrak** *National Innovator | AI & ML Researcher*
 
 I am passionate about leveraging Artificial Intelligence to solve complex societal problems.
 
