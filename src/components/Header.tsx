@@ -1,6 +1,9 @@
-import { Shield, Github } from "lucide-react";
+import { Shield, Github, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Header = () => {
+  const { user, signOut } = useAuth();
+
   return (
     <header className="border-b border-border/50 bg-card/50 backdrop-blur-xl sticky top-0 z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -14,15 +17,31 @@ export const Header = () => {
           </div>
         </div>
 
-        <a
-          href="https://github.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-sm text-muted-foreground hover:text-foreground"
-        >
-          <Github className="w-4 h-4" />
-          <span className="hidden sm:inline">View Source</span>
-        </a>
+        <div className="flex items-center gap-3">
+          {user && (
+            <span className="text-xs text-muted-foreground hidden sm:block">
+              {user.email}
+            </span>
+          )}
+          <a
+            href="https://github.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-sm text-muted-foreground hover:text-foreground"
+          >
+            <Github className="w-4 h-4" />
+            <span className="hidden sm:inline">View Source</span>
+          </a>
+          {user && (
+            <button
+              onClick={signOut}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-sm text-muted-foreground hover:text-foreground"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Sign Out</span>
+            </button>
+          )}
+        </div>
       </div>
     </header>
   );
