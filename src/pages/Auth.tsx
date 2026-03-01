@@ -13,35 +13,25 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const { supabase } = await import("@/integrations/supabase/client");
-
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast.success("Welcome back!");
+    // Simulated authentication (Demo Mode)
+    setTimeout(() => {
+      if (email === "admin@test.com" && password === "123456") {
+        toast.success("Login successful!");
+        localStorage.setItem("isAuthenticated", "true");
         navigate("/");
+      } else if (!isLogin) {
+        toast.success("Account created successfully!");
+        setIsLogin(true);
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { full_name: fullName },
-            emailRedirectTo: window.location.origin,
-          },
-        });
-        if (error) throw error;
-        toast.success("Check your email to confirm your account!");
+        toast.error("Invalid credentials");
       }
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
+
       setLoading(false);
-    }
+    }, 800);
   };
 
   return (
@@ -68,6 +58,7 @@ const Auth = () => {
                   placeholder="Full name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
+                  required
                   className="pl-10 h-12 bg-secondary/50 border-border/50 rounded-xl"
                 />
               </div>
@@ -119,7 +110,9 @@ const Auth = () => {
               onClick={() => setIsLogin(!isLogin)}
               className="text-sm text-muted-foreground hover:text-primary transition-colors"
             >
-              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+              {isLogin
+                ? "Don't have an account? Sign up"
+                : "Already have an account? Sign in"}
             </button>
           </div>
         </div>
