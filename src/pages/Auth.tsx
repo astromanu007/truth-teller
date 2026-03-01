@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Shield, Mail, Lock, ArrowRight, Loader2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const Auth = () => {
@@ -19,6 +18,8 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      const { supabase } = await import("@/integrations/supabase/client");
+
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -46,7 +47,6 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-4">
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -59,7 +59,6 @@ const Auth = () => {
           </p>
         </div>
 
-        {/* Auth Card */}
         <div className="bg-card rounded-2xl p-8 card-elevated border border-border/50">
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
