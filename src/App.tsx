@@ -11,9 +11,6 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// Check if Supabase env vars are available
-const isSupabaseConfigured = !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY);
-
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   if (loading) return <div className="min-h-screen bg-gradient-hero flex items-center justify-center text-foreground">Loading...</div>;
@@ -22,16 +19,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AppRoutes = () => {
-  if (!isSupabaseConfigured) {
-    // Show app without auth when backend is still provisioning
-    return (
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    );
-  }
-
   return (
     <Routes>
       <Route path="/auth" element={<Auth />} />
