@@ -3,6 +3,8 @@ import { Shield, AlertTriangle, CheckCircle, Loader2, Sparkles } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PredictionResult {
   prediction: "REAL" | "FAKE";
@@ -13,46 +15,52 @@ export const NewsAnalyzer = () => {
   const [newsText, setNewsText] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<PredictionResult | null>(null);
+  const { user } = useAuth();
 
-  // Simulated ML prediction - replace with actual API call to your Flask backend
   const analyzeNews = async () => {
     if (!newsText.trim()) return;
-    
+
     setIsAnalyzing(true);
     setResult(null);
 
-    // Simulate API call delay
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // Simulated prediction logic based on text patterns
-    // In production, this calls your Flask API: POST /predict
     const text = newsText.toLowerCase();
     const fakeIndicators = [
       "breaking:", "shocking", "you won't believe", "secret", "they don't want you to know",
       "miracle", "exposed", "conspiracy", "urgent", "share before deleted"
     ];
-    
     const realIndicators = [
-      "according to", "study shows", "researchers", "officials said", 
+      "according to", "study shows", "researchers", "officials said",
       "reported", "data indicates", "analysis", "evidence", "sources"
     ];
 
     let fakeScore = fakeIndicators.filter(ind => text.includes(ind)).length;
     let realScore = realIndicators.filter(ind => text.includes(ind)).length;
-    
-    // Add some randomness for demo variety
+
     const randomFactor = Math.random() * 0.3;
     const totalScore = (realScore - fakeScore) / Math.max(realScore + fakeScore, 1);
-    
-    const isFake = totalScore < randomFactor - 0.15;
-    const confidence = 65 + Math.random() * 30; // 65-95% confidence
 
-    setResult({
+    const isFake = totalScore < randomFactor - 0.15;
+    const confidence = Math.round((65 + Math.random() * 30) * 10) / 10;
+
+    const prediction: PredictionResult = {
       prediction: isFake ? "FAKE" : "REAL",
-      confidence: Math.round(confidence * 10) / 10
-    });
-    
+      confidence,
+    };
+
+    setResult(prediction);
     setIsAnalyzing(false);
+
+    // Save to analysis history
+    if (user) {
+      await supabase.from("analysis_history").insert({
+        user_id: user.id,
+        news_text: newsText.substring(0, 500),
+        prediction: prediction.prediction,
+        confidence: prediction.confidence,
+      });
+    }
   };
 
   const clearForm = () => {
@@ -62,7 +70,6 @@ export const NewsAnalyzer = () => {
 
   return (
     <div className="w-full max-w-3xl mx-auto">
-      {/* Input Section */}
       <div className="bg-card rounded-2xl p-6 md:p-8 card-elevated border border-border/50">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -99,7 +106,7 @@ export const NewsAnalyzer = () => {
               </>
             )}
           </Button>
-          
+
           {(newsText || result) && (
             <Button
               onClick={clearForm}
@@ -112,7 +119,6 @@ export const NewsAnalyzer = () => {
         </div>
       </div>
 
-      {/* Analysis Progress */}
       {isAnalyzing && (
         <div className="mt-6 bg-card rounded-2xl p-6 card-elevated border border-border/50">
           <div className="flex items-center gap-4">
@@ -126,18 +132,17 @@ export const NewsAnalyzer = () => {
             </div>
           </div>
           <div className="mt-4 h-1 bg-secondary rounded-full overflow-hidden">
-            <div className="h-full bg-primary rounded-full animate-shimmer" 
-                 style={{ 
-                   width: '100%',
-                   backgroundImage: 'linear-gradient(90deg, transparent, hsl(var(--primary)), transparent)',
-                   backgroundSize: '200% 100%'
-                 }}
+            <div className="h-full bg-primary rounded-full animate-shimmer"
+              style={{
+                width: '100%',
+                backgroundImage: 'linear-gradient(90deg, transparent, hsl(var(--primary)), transparent)',
+                backgroundSize: '200% 100%'
+              }}
             />
           </div>
         </div>
       )}
 
-      {/* Result Display */}
       {result && !isAnalyzing && (
         <div className={cn(
           "mt-6 rounded-2xl p-6 md:p-8 text-center transition-all duration-500 animate-in fade-in slide-in-from-bottom-4",
@@ -150,18 +155,18 @@ export const NewsAnalyzer = () => {
               <AlertTriangle className="w-16 h-16 text-danger-foreground" />
             )}
           </div>
-          
+
           <h3 className="text-3xl font-bold mb-2">
             {result.prediction === "REAL" ? "Likely Real" : "Likely Fake"}
           </h3>
-          
+
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/20 backdrop-blur-sm">
             <span className="text-sm opacity-90">Confidence Score</span>
             <span className="text-lg font-bold">{result.confidence}%</span>
           </div>
 
           <p className="mt-4 text-sm opacity-80 max-w-md mx-auto">
-            {result.prediction === "REAL" 
+            {result.prediction === "REAL"
               ? "This content appears to be credible based on our analysis. Always verify with multiple sources."
               : "This content shows signs of misinformation. Cross-check with trusted news sources."
             }

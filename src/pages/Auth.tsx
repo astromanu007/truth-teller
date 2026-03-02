@@ -4,6 +4,9 @@ import { Shield, Mail, Lock, ArrowRight, Loader2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -12,26 +15,37 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) navigate("/");
+  }, [user, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    // Simulated authentication (Demo Mode)
-    setTimeout(() => {
-      if (email === "admin@test.com" && password === "123456") {
+    try {
+      if (isLogin) {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
         toast.success("Login successful!");
-        localStorage.setItem("isAuthenticated", "true");
         navigate("/");
-      } else if (!isLogin) {
-        toast.success("Account created successfully!");
-        setIsLogin(true);
       } else {
-        toast.error("Invalid credentials");
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { full_name: fullName } },
+        });
+        if (error) throw error;
+        toast.success("Account created! You can now sign in.");
+        setIsLogin(true);
       }
-
+    } catch (error: any) {
+      toast.error(error.message || "Authentication failed");
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   return (
